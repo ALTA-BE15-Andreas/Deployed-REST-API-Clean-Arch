@@ -18,7 +18,7 @@ jobs:
           key: ${{ secrets.KEY }}
           port: ${{ secrets.PORT }}
           script: |
-            cd /home/fakhry/Deployed-REST-API-Clean-Arch
+            cd /home/linux-pc/Deployed-REST-API-Clean-Arch
             git pull origin main
             docker stop deployed-rest-api-clean-arch-container
             docker rm deployed-rest-api-clean-arch-container
