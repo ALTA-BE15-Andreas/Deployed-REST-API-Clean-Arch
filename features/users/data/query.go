@@ -43,7 +43,7 @@ func (repo *userQuery) SelectByUserId(userId uint) (users.UserEntity, error) {
 
 	userEntity := GormToEntity(userGorm)
 	if txSelect.Error != nil {
-		return users.UserEntity{}, txSelect.Error
+		return users.UserEntity{}, errors.New("error select user")
 	}
 	return userEntity, nil
 }
@@ -83,7 +83,7 @@ func (repo *userQuery) Update(userId uint, input users.UserEntity) error {
 func (repo *userQuery) Delete(userId uint) error {
 	txDelete := repo.db.Delete(&UserGorm{}, userId)
 	if txDelete.Error != nil {
-		return txDelete.Error
+		return errors.New("delete error, row affected = 0")
 	}
 	return nil
 }
