@@ -14,19 +14,21 @@ func TestCreate(t *testing.T) {
 	inputData := users.UserEntity{Id: 1, Name: "Joko", Email: "Joko@gmail.com", Password: "qwerty", Address: "Jakarta", Role: "User"}
 
 	t.Run("Failed validate", func(t *testing.T) {
+		inputDataCopy := inputData
+		inputDataCopy.Email = ""
 		userService := New(userDataMock)
-		err := userService.Create(inputData)
+		err := userService.Create(inputDataCopy)
 		assert.NotNil(t, err)
 		userDataMock.AssertExpectations(t)
 	})
-
+	
 	t.Run("Failed Insert User Error", func(t *testing.T) {
 		userDataMock.On("Insert", inputData).Return(errors.New("error insert data")).Once()
 
 		userService := New(userDataMock)
 		err := userService.Create(inputData)
 		assert.NotNil(t, err)
-		assert.Equal(t, "insert error, row affected = 0", err.Error())
+		assert.Equal(t, "error insert data", err.Error())
 		userDataMock.AssertExpectations(t)
 	})
 
@@ -65,7 +67,7 @@ func TestGetUser(t *testing.T) {
 	}
 
 	t.Run("Success Get User", func(t *testing.T) {
-		userDataMock.On("SelectByUserId").Return(returnData, nil).Once()
+		userDataMock.On("SelectByUserId", userId).Return(returnData, nil).Once()
 
 		userService := New(userDataMock)
 		response, err := userService.GetUser(userId)
@@ -83,7 +85,7 @@ func TestModify(t *testing.T) {
 	}
 
 	t.Run("Success Update User", func(t *testing.T) {
-		userDataMock.On("Update", userId, inputData).Return(nil).Once()
+		userDataMock.On("Update", uint(userId), inputData).Return(nil).Once()
 
 		userService := New(userDataMock)
 		err := userService.Modify(uint(userId), inputData)
@@ -92,7 +94,7 @@ func TestModify(t *testing.T) {
 	})
 
 	t.Run("Failed Find User By ID", func(t *testing.T) {
-		userDataMock.On("Update", userId, inputData).Return(errors.New("error select user")).Once()
+		userDataMock.On("Update", uint(userId), inputData).Return(errors.New("error select user")).Once()
 
 		userService := New(userDataMock)
 		err := userService.Modify(uint(userId), inputData)
@@ -102,7 +104,7 @@ func TestModify(t *testing.T) {
 	})
 
 	t.Run("Failed Update User", func(t *testing.T) {
-		userDataMock.On("Update", userId, inputData).Return(errors.New("update error, row affected = 0")).Once()
+		userDataMock.On("Update", uint(userId), inputData).Return(errors.New("update error, row affected = 0")).Once()
 
 		userService := New(userDataMock)
 		err := userService.Modify(uint(userId), inputData)
@@ -117,7 +119,7 @@ func TestRemove(t *testing.T) {
 	userId := 1
 
 	t.Run("Success Delete User", func(t *testing.T) {
-		userDataMock.On("Delete", userId).Return(nil).Once()
+		userDataMock.On("Delete", uint(userId)).Return(nil).Once()
 
 		userService := New(userDataMock)
 		err := userService.Remove(uint(userId))
@@ -126,7 +128,7 @@ func TestRemove(t *testing.T) {
 	})
 
 	t.Run("Failed Find User By ID", func(t *testing.T) {
-		userDataMock.On("Delete", userId).Return(errors.New("delete error, row affected = 0")).Once()
+		userDataMock.On("Delete", uint(userId)).Return(errors.New("delete error, row affected = 0")).Once()
 
 		userService := New(userDataMock)
 		err := userService.Remove(uint(userId))
